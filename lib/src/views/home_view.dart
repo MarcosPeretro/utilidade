@@ -6,7 +6,7 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsetsGeometry.all(24),
+      padding: EdgeInsets.all(24),
       child: ListView(
         children: [
           Text("Aplicativo de estudos Flutter",
