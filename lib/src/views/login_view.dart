@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:utilidades/src/controllers/login_controller.dart';
+import 'package:utilidades/src/models/user_model.dart';
 import 'package:utilidades/src/services/auth_service.dart';
 
 class LoginView extends StatefulWidget {
@@ -14,21 +15,51 @@ class _LoginViewState extends State<LoginView> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   String _message = '';
+  bool _isLoading = false;
 
-  void _handleLogin() async {
-    final sucess = await _controller.login(
-      _usernameController.text,
-      _passwordController.text,
-    );
+  // void _handleLogin() async {
+  //   final sucess = await _controller.login(
+  //     _usernameController.text,
+  //     _passwordController.text,
+  //   );
 
-    if (sucess) {
-      AuthService.login();
-      Navigator.pushReplacementNamed(context, "/home");
-    } else {
+  //   if (sucess) {
+  //     AuthService.login();
+  //     Navigator.pushReplacementNamed(context, "/home");
+  //   } else {
+  //     setState(() {
+  //       _message = "Usuário ou senha incorretos";
+  //     });
+  //   }
+  // }
+
+  void _handleLogin() async{
+    setState(() {
+      _isLoading = true;
+    });
+
+    final user = UserModel(
+      username: _usernameController.text.trim(), 
+      password: _passwordController.text.trim()
+      );
+
+      final sucess = await _controller.login(user);
+
       setState(() {
-        _message = "Usuário ou senha incorretos";
+        _isLoading = false;
       });
-    }
+
+      if (sucess) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Login efetuado com sucesso"))
+        );
+
+        Navigator.pushReplacementNamed(context, '/home');
+      }else{
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Dados de login incorretos"))
+        );
+      }
   }
 
   @override
@@ -64,6 +95,8 @@ class _LoginViewState extends State<LoginView> {
                   obscureText: true,
                 ),
                 SizedBox(height: 10),
+                _isLoading ?
+                const CircularProgressIndicator() :  
                 ElevatedButton(
                   onPressed: _handleLogin, 
                   child: Text("Entrar")
